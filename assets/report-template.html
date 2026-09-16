@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="{{REPORT_LANG}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{{PAGE_TITLE}}</title>
+  <style>
+    :root {
+      --ink: #202039;
+      --muted: #65657b;
+      --paper: #fffdf8;
+      --panel: rgba(255, 255, 255, 0.9);
+      --line: #d8d5e5;
+      --pink: #ff4f9a;
+      --orange: #ff8a3d;
+      --yellow: #ffd84a;
+      --green: #3ddc97;
+      --blue: #3f8cff;
+      --purple: #8a5cff;
+      --shadow: 0 18px 50px rgba(58, 45, 94, 0.13);
+      --rainbow: linear-gradient(100deg, var(--pink), var(--orange), var(--yellow), var(--green), var(--blue), var(--purple));
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 4%, rgba(255, 216, 74, 0.26) 0 5px, transparent 6px),
+        radial-gradient(circle at 91% 12%, rgba(255, 79, 154, 0.22) 0 4px, transparent 5px),
+        radial-gradient(circle at 78% 78%, rgba(63, 140, 255, 0.18) 0 6px, transparent 7px),
+        linear-gradient(145deg, #fffaf0 0%, #f8f4ff 50%, #effaff 100%);
+      background-size: 86px 86px, 113px 113px, 137px 137px, auto;
+      font: 16px/1.65 ui-rounded, "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+    }
+
+    a { color: #5d3ed1; text-underline-offset: 0.16em; }
+    a:hover { color: #d52f78; }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 80px;
+    }
+
+    .hero,
+    .section,
+    .story {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(99, 86, 143, 0.16);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .hero { padding: clamp(28px, 6vw, 68px); }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 9px;
+      background: var(--rainbow);
+    }
+
+    .sparkle {
+      position: absolute;
+      color: var(--pink);
+      font-size: clamp(24px, 5vw, 54px);
+      line-height: 1;
+      user-select: none;
+      animation: twinkle 3.2s ease-in-out infinite;
+    }
+
+    .sparkle.one { top: 32px; right: 8%; }
+    .sparkle.two { right: 20%; bottom: 20px; color: var(--blue); animation-delay: -1.4s; }
+
+    .rainbow-sticker {
+      position: absolute;
+      right: -16px;
+      top: 58px;
+      width: 104px;
+      height: 54px;
+      border-radius: 104px 104px 0 0;
+      background: repeating-radial-gradient(circle at 50% 100%, var(--pink) 0 7px, var(--orange) 8px 14px, var(--yellow) 15px 21px, var(--green) 22px 28px, var(--blue) 29px 35px, var(--purple) 36px 42px, transparent 43px 52px);
+      filter: drop-shadow(0 8px 8px rgba(69, 49, 107, 0.2));
+      transform: rotate(9deg);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+      padding: 5px 12px;
+      border: 1px solid rgba(138, 92, 255, 0.22);
+      border-radius: 999px;
+      color: #603ab2;
+      background: #f5efff;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 850px; margin-bottom: 16px; font-size: clamp(2.25rem, 7vw, 5.5rem); line-height: 0.98; letter-spacing: -0.055em; }
+    h2 { margin-bottom: 18px; font-size: clamp(1.55rem, 3vw, 2.2rem); line-height: 1.14; letter-spacing: -0.025em; }
+    h3 { margin-bottom: 6px; font-size: 1rem; line-height: 1.3; }
+    .lede { max-width: 760px; color: #45445b; font-size: clamp(1.05rem, 2vw, 1.28rem); }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 28px;
+    }
+
+    .pill,
+    .sticker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    .pill { border: 1px solid var(--line); background: #fff; }
+    .pill.good { border-color: #94e7c0; color: #17633f; background: #edfff6; }
+    .pill.bad { border-color: #ff9abf; color: #9c2053; background: #fff0f5; }
+    .pill.unknown { border-color: #e7cf82; color: #735b0a; background: #fff9df; }
+    .sticker { background: var(--yellow); box-shadow: 2px 3px 0 #d3a900; transform: rotate(-1.5deg); }
+
+    .section { margin-top: 24px; padding: clamp(24px, 4vw, 42px); }
+    .minute { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; }
+    .minute-mark {
+      display: grid;
+      place-items: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 20px;
+      color: #fff;
+      background: var(--rainbow);
+      box-shadow: 4px 5px 0 rgba(69, 49, 107, 0.24);
+      font-size: 1.6rem;
+      font-weight: 900;
+      transform: rotate(-4deg);
+    }
+
+    .story { margin-top: 24px; padding: clamp(24px, 4vw, 44px); }
+    .story-number {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin-bottom: 14px;
+      border-radius: 50% 45% 52% 42%;
+      color: #fff;
+      background: #6d45db;
+      font-weight: 900;
+      transform: rotate(5deg);
+    }
+
+    .comparison {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 24px;
+      margin-top: 28px;
+    }
+
+    .comparison.single { grid-template-columns: minmax(0, 760px); justify-content: center; }
+    .flow {
+      min-width: 0;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .flow.before { border-top: 7px solid #8c899c; }
+    .flow.after { border-top: 7px solid var(--green); }
+    .flow.new { border-top: 7px solid var(--blue); }
+    .flow > h3 { margin-bottom: 18px; font-size: 1.12rem; }
+
+    .flow-step {
+      position: relative;
+      padding: 17px 18px;
+      border: 2px solid #c8c5d5;
+      border-radius: 16px;
+      background: #fff;
+    }
+
+    .flow-step + .flow-step { margin-top: 38px; }
+    .flow-step + .flow-step::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 2px);
+      width: 3px;
+      height: 34px;
+      border-radius: 3px;
+      background: #aaa5bd;
+    }
+
+    .flow-step + .flow-step::after {
+      content: "";
+      position: absolute;
+      left: calc(50% - 5px);
+      top: -9px;
+      width: 9px;
+      height: 9px;
+      border-right: 3px solid #aaa5bd;
+      border-bottom: 3px solid #aaa5bd;
+      transform: rotate(45deg);
+    }
+
+    .flow-step.changed { border-color: var(--orange); background: #fff7eb; }
+    .flow-step.added { border-color: var(--green); background: #effff7; }
+    .flow-step.removed { border-color: var(--pink); background: #fff2f7; }
+    .flow-step.unchanged { color: #676579; background: #f6f5f9; }
+
+    .step-label {
+      display: inline-block;
+      margin-bottom: 8px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      color: #55506a;
+      background: #ece9f5;
+      font-size: 0.7rem;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .changed .step-label { color: #7b4000; background: #ffe0ba; }
+    .added .step-label { color: #18583b; background: #c6f6df; }
+    .removed .step-label { color: #8c2851; background: #ffd1e1; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 18px 0 0; color: var(--muted); font-size: 0.82rem; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .legend i { width: 10px; height: 10px; border-radius: 50%; background: #c8c5d5; }
+    .legend .changed-dot { background: var(--orange); }
+    .legend .added-dot { background: var(--green); }
+    .legend .removed-dot { background: var(--pink); }
+
+    details {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    summary { cursor: pointer; padding: 13px 16px; font-weight: 780; }
+    summary:hover { color: #6d45db; }
+    details[open] summary { border-bottom: 1px solid var(--line); }
+    .details-body { padding: 16px; }
+
+    pre {
+      max-width: 100%;
+      margin: 0;
+      overflow: auto;
+      border-radius: 12px;
+      padding: 16px;
+      color: #f9f7ff;
+      background: #262338;
+      font: 0.86rem/1.55 ui-monospace, "SFMono-Regular", Consolas, monospace;
+    }
+
+    .source-ref { margin: 10px 0 0; color: var(--muted); font-size: 0.82rem; }
+    .checklist { margin: 0; padding-left: 1.4rem; }
+    .checklist li + li { margin-top: 9px; }
+    .empty-note { margin: 0; border-left: 5px solid var(--yellow); padding: 12px 16px; background: #fff9de; }
+    .footer { padding: 28px 8px 0; color: var(--muted); text-align: center; font-size: 0.8rem; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.45; transform: scale(0.82) rotate(-8deg); }
+      50% { opacity: 1; transform: scale(1.08) rotate(8deg); }
+    }
+
+    @media (hover: hover) {
+      .flow-step { transition: transform 160ms ease, box-shadow 160ms ease; }
+      .flow-step:hover { transform: translateY(-2px) rotate(-0.25deg); box-shadow: 0 10px 20px rgba(58, 45, 94, 0.1); }
+    }
+
+    @media (max-width: 760px) {
+      .page { width: min(100% - 20px, 620px); padding-top: 16px; }
+      .hero, .section, .story { border-radius: 20px; }
+      .rainbow-sticker { opacity: 0.56; }
+      .comparison { grid-template-columns: 1fr; }
+      .minute { grid-template-columns: 1fr; }
+      .minute-mark { width: 52px; height: 52px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="hero">
+      <span class="sparkle one" aria-hidden="true">✦</span>
+      <span class="sparkle two" aria-hidden="true">✧</span>
+      <span class="rainbow-sticker" aria-hidden="true"></span>
+      <p class="eyebrow">Go on a code walk · {{REPOSITORY}}</p>
+      <h1>{{MR_TITLE}}</h1>
+      <p class="lede">{{ONE_SENTENCE_PURPOSE}}</p>
+      <div class="meta" aria-label="Merge request metadata">
+        <span class="sticker">{{MR_IDENTIFIER}}</span>
+        <span class="pill">{{SOURCE_BRANCH}} → {{TARGET_BRANCH}}</span>
+        <span class="pill">{{SHORT_SOURCE_SHA}}</span>
+        <span class="pill {{PIPELINE_CLASS}}">Pipeline: {{PIPELINE_STATUS}}</span>
+        <a class="pill" href="{{JIRA_URL}}" rel="noreferrer noopener">{{JIRA_LABEL}}</a>
+      </div>
+    </header>
+
+    <section class="section minute" aria-labelledby="minute-title">
+      <div class="minute-mark" aria-hidden="true">1'</div>
+      <div>
+        <h2 id="minute-title">{{MR_IN_ONE_MINUTE_HEADING}}</h2>
+        <p>{{MOTIVATION}}</p>
+        <p>{{RESULTING_BEHAVIOR}}</p>
+      </div>
+    </section>
+
+    <!-- Duplicate this article for each coherent behavior story. -->
+    <article class="story" aria-labelledby="story-1-title">
+      <div class="story-number" aria-hidden="true">1</div>
+      <h2 id="story-1-title">{{STORY_TITLE}}</h2>
+      <p>{{STORY_INTRODUCTION}}</p>
+
+      <!-- Existing behavior: retain both flows. New feature: use one .flow.new inside .comparison.single. -->
+      <div class="comparison">
+        <section class="flow before" aria-labelledby="before-1-title">
+          <h3 id="before-1-title">{{BEFORE_HEADING}}</h3>
+          <div class="flow-step unchanged">
+            <span class="step-label">{{UNCHANGED_LABEL}}</span>
+            <h3>{{BEFORE_STEP_TITLE}}</h3>
+            <p>{{BEFORE_STEP_DESCRIPTION}}</p>
+          </div>
+          <div class="flow-step removed">
+            <span class="step-label">{{REMOVED_LABEL}}</span>
+            <h3>{{BEFORE_CHANGED_STEP_TITLE}}</h3>
+            <p>{{BEFORE_CHANGED_STEP_DESCRIPTION}}</p>
+          </div>
+        </section>
+
+        <section class="flow after" aria-labelledby="after-1-title">
+          <h3 id="after-1-title">{{AFTER_HEADING}}</h3>
+          <div class="flow-step unchanged">
+            <span class="step-label">{{UNCHANGED_LABEL}}</span>
+            <h3>{{AFTER_STEP_TITLE}}</h3>
+            <p>{{AFTER_STEP_DESCRIPTION}}</p>
+          </div>
+          <div class="flow-step added">
+            <span class="step-label">{{ADDED_LABEL}}</span>
+            <h3>{{AFTER_CHANGED_STEP_TITLE}}</h3>
+            <p>{{AFTER_CHANGED_STEP_DESCRIPTION}}</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="legend" aria-label="Flow legend">
+        <span><i></i>{{UNCHANGED_LABEL}}</span>
+        <span><i class="changed-dot"></i>{{CHANGED_LABEL}}</span>
+        <span><i class="added-dot"></i>{{ADDED_LABEL}}</span>
+        <span><i class="removed-dot"></i>{{REMOVED_LABEL}}</span>
+      </div>
+
+      <details>
+        <summary>{{WHAT_IS_THIS_HEADING}}</summary>
+        <div class="details-body"><p>{{CONTEXT_EXPLANATION}}</p></div>
+      </details>
+
+      <details>
+        <summary>{{CODE_EVIDENCE_HEADING}}</summary>
+        <div class="details-body">
+          <pre><code>{{ESCAPED_CODE_EXCERPT}}</code></pre>
+          <p class="source-ref"><a href="{{SOURCE_URL}}" rel="noreferrer noopener">{{SOURCE_PATH_AND_LINE}}</a></p>
+        </div>
+      </details>
+    </article>
+
+    <section class="section" aria-labelledby="verify-title">
+      <h2 id="verify-title">{{THINGS_TO_VERIFY_HEADING}}</h2>
+      <details>
+        <summary>{{CHECKLIST_SUMMARY}}</summary>
+        <div class="details-body">
+          <ul class="checklist">
+            <li>{{VERIFICATION_QUESTION}} <a href="{{VERIFICATION_SOURCE_URL}}" rel="noreferrer noopener">{{VERIFICATION_SOURCE}}</a></li>
+          </ul>
+        </div>
+      </details>
+      <!-- If there are no checklist items, remove the details block and retain this note. -->
+      <p class="empty-note">{{NO_SPECIAL_CHECKS_DISCLAIMER}}</p>
+    </section>
+
+    <section class="section" aria-labelledby="sources-title">
+      <h2 id="sources-title">{{SOURCES_HEADING}}</h2>
+      <details>
+        <summary>{{SOURCES_SUMMARY}}</summary>
+        <div class="details-body">
+          <p>{{SOURCE_REVISION}}</p>
+          <p>{{LOCAL_REMOTE_STATUS}}</p>
+          <p>{{FILES_AND_COMMITS}}</p>
+          <p>{{ASSUMPTIONS}}</p>
+        </div>
+      </details>
+    </section>
+
+    <footer class="footer">{{GENERATED_NOTE}}</footer>
+  </div>
+</body>
+</html>

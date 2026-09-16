@@ -1,0 +1,6 @@
+interface:
+  display_name: "Go on a Code Walk"
+  short_description: "Visual walkthrough of a Go merge request"
+  default_prompt: "Use $go-on-a-code-walk to explain the current Go merge request as a self-contained HTML story."
+policy:
+  allow_implicit_invocation: false
