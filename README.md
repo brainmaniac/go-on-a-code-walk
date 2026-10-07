@@ -1,3 +1,13 @@
+<p align="center">
+  <img src="assets/go-on-a-code-walk.png" alt="Go on a Code Walk: a person walking a dog" width="600">
+</p>
+
+<p align="center">
+  <a href="SKILL.md"><img src="https://img.shields.io/badge/Codex-Skill-10a37f?style=flat-square" alt="Codex skill"></a>
+  <img src="https://img.shields.io/badge/Go-Code%20Walkthrough-00add8?style=flat-square&logo=go&logoColor=white" alt="Go code walkthrough">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="MIT license"></a>
+</p>
+
 # Go on a Code Walk
 
 Turn a Go merge request into a visual story a reviewer can follow.
