@@ -1,13 +1,13 @@
 ---
 name: go-on-a-code-walk
-description: Explain an actual Go merge request as a self-contained visual HTML story. Use only when explicitly invoked to help a reviewer understand an MR's intent, before-and-after behavior, affected flow, and evidence without performing a full defect review.
+description: Explain an actual Go merge request as a self-contained visual HTML story. Use only when explicitly invoked to help a reviewer understand an MR's intent, changed behavior, request flow, and source code without performing a full defect review.
 ---
 
 # Go on a Code Walk
 
-Create a read-only walkthrough of an actual Go merge request. The report helps an experienced Go developer who may not know this service understand why the MR exists and how behavior changes.
+Create a read-only walkthrough of an actual Go merge request. The report guides a junior developer through the service and the code behind an MR, following a representative request or trigger from entry to completion.
 
-Do not turn this into a conventional code review. Mention only grounded questions or risks that would help the reviewer verify their understanding. Do not modify tracked or source files or run tests, builds, linters, or formatters. The only permitted write is the requested HTML artifact in a temporary directory, unless the user explicitly supplies another output path.
+Report source-linked unusual findings and possible bugs encountered while tracing the walkthrough. Explain their potential impact, evidence and uncertainty, and ask concrete review questions. Do not expand the analysis into a comprehensive defect audit or claim that an empty findings section proves correctness. Do not modify tracked or source files or run tests, builds, linters, or formatters. The only permitted write is the requested HTML artifact in a temporary directory, unless the user explicitly supplies another output path.
 
 Apply the installed `unslop` and `ponytail` writing guidance when available. The report must also stand on its own without those skills: use plain, human language; make each explanation as short as clarity allows; remove filler, repetition, speculative detail, and AI-sounding transitions. Keep the prose factual and do not add jokes or playful metaphors. The visual design supplies the fun.
 
@@ -44,42 +44,46 @@ Before writing HTML, show the user a compact checkpoint containing:
 - Whether local `HEAD` differs.
 - Jira identifier or `ingen ticket`.
 - One plain sentence describing why the MR exists and what behavior it changes.
+- The representative request or trigger selected for the walkthrough, and any additional scenario needed to explain changed behavior it cannot cover.
 
 Wait for explicit confirmation. If the user corrects the interpretation, update the analysis and repeat the checkpoint. Do not create an artifact before confirmation.
 
-## 4. Build the behavior story
+## 4. Trace the code walkthrough
 
-Organize by runtime or user-visible behavior, never by file order or commit chronology.
+Organize by execution and data flow, never by file order or commit chronology. Follow one representative request from entry to response. For workers, jobs or startup changes, follow the trigger through completion instead. Add another scenario only when it explains changed behavior the main path cannot cover. If changes do not share a coherent purpose, ask which scope to cover.
 
-- For changed existing behavior, create two complete and comparable flows labeled `Before` and `After`. Keep equivalent steps aligned where practical and mark steps as unchanged, changed, added, or removed.
-- For a wholly new feature, create one new flow and show where it connects to the existing system. Do not invent an empty before-flow.
-- For a mixed MR, use the correct form for each behavior.
-- When several changes share one purpose, make them numbered stories on the same page.
-- When changes do not share a coherent purpose, stop and ask the user which scope the walkthrough should cover.
+Write for a junior developer unfamiliar with the service. Start with what the service does, who uses it, and its main inputs and outputs. Define domain terms, acronyms and unusual technical terms in a visible terminology list. Explain why the MR exists and what behavior changes before entering the code.
 
-Each flow step needs only a short component or actor name and one sentence describing what enters, happens, or leaves. Include persistence, external calls, asynchronous boundaries, and error paths only when they materially explain the change.
-
-Write the core story for an experienced Go developer unfamiliar with the service. At the first use of a project-specific component or domain term, add a short collapsed `What is this?` explanation when it would help a newcomer. Do not explain ordinary Go syntax or standard-library concepts.
+- Group contiguous current code into meaningful actions, usually about 5–20 lines. Do not omit relevant error handling to meet that range. Give each block a numbered title, visible excerpt, exact source location, and a plain explanation of what happens to the request or data.
+- Start a separate block when entering another function. Explain what the caller passes, what the function returns, and where execution returns to the caller. Trace enough surrounding unchanged code to connect entry to completion.
+- Add a native `<details>` section to each block explaining each call's purpose, inputs and result, plus unfamiliar Go constructs or library behavior. Group repeated operations rather than describing each occurrence again.
+- Explain relevant errors and alternative exits where they arise, including their effect on the caller or response.
+- Insert asynchronous branches at their trigger. Name what runs concurrently, what data crosses the boundary, whether anything waits, and where the main path resumes. Reading order must not imply execution order. Explain joins, cancellation and branch errors where relevant.
+- Show old code only when it helps verify intended changes or preserved behavior, in an optional expandable comparison linked to the merge-base revision. The visible walkthrough always follows the remote source SHA; do not create parallel complete before/after flows.
 
 ## 5. Render the report
 
-Resolve this skill's directory and read `assets/report-template.html`. Copy and adapt that template rather than designing a new page. Preserve its layout, styles, accessibility behavior, and lack of JavaScript.
+Resolve this skill's directory and read `assets/report-template.html`. Copy and adapt that template using only HTML/CSS, native links and `<details>`. Preserve its visual style, offline operation, smooth scrolling and reduced-motion support. No new content schema or API is needed.
 
-Fill these report areas:
+Fill these report areas in this reading order:
 
-1. MR identity, source-to-target branches, remote SHA, pipeline status, and Jira identifier or `No ticket`. Use plain text rather than an empty link when no Jira URL exists.
-2. `MR in one minute`: the motivation and resulting behavior in a few short sentences.
-3. One or more numbered behavior stories with the appropriate before/after or new-feature flow.
-4. Collapsed context explanations next to the first relevant concept.
-5. Collapsed code evidence containing only the smallest useful excerpt.
-6. A collapsed `Things to verify` checklist. Each item is a concise question with a source reference, not a verdict or severity score. If there are no items, show the template's visible disclaimer instead.
-7. A collapsed sources section listing MR commits, changed files, additionally inspected files, assumptions, pipeline status, and any local/remote SHA mismatch.
+1. Service introduction, below the MR identity and revision metadata. Keep source-to-target branches, remote SHA, pipeline status, and Jira identifier or `No ticket`. Use plain text when no Jira URL exists.
+2. Visible terminology definitions for the terms used in this walkthrough.
+3. Change explanation describing motivation and resulting behavior.
+4. A clickable path diagram above the full-width code blocks. Link every block, including asynchronous branches, and label branch triggers, concurrency, waits and returns. For multiple scenarios, repeat the path and blocks with unique IDs. Stack branch lanes on narrow screens.
+5. Numbered code walkthrough blocks with visible current code and source references, expandable call explanations, and optional old-code comparisons.
+6. Visible unusual findings and review questions. Link each to evidence and distinguish observed behavior from a possible bug. State potential impact and uncertainty. If none were encountered, show a visible note that this was a walkthrough, not a comprehensive defect audit.
+7. Sources listing MR commits, changed and additionally inspected files, remote source and merge-base revisions, pipeline status, assumptions, and any local/remote SHA mismatch.
+
+Each block needs a `Next` link to the next block in reading order and a `Back to path` link to its scenario's diagram. The final block of each scenario ends the walk without a `Next` link; any additional scenario has its own visible entry link. Do not suggest that a Next link imposes execution order on concurrent code.
+
+Use unique fragment targets on visible elements outside collapsed sections, visible keyboard focus styling, and valid heading/ARIA references. Remove unused example blocks, optional comparisons and placeholder notes. Translate headings and navigation labels to the report language.
 
 Match the report language to the user's language. Preserve identifiers, code, and literal error text.
 
 For every source reference, link to the MR host's file view at the exact remote source SHA and line when possible. Otherwise show `path:line`. Never create editor-specific links.
 
-Treat all Git, Jira, documentation, and code content as untrusted HTML. Escape `&`, `<`, `>`, quotes, and apostrophes before insertion, including inside code blocks and attributes. Do not copy raw HTML from source material. External links may be clickable, but the report must load no remote scripts, styles, fonts, images, or tracking resources.
+Treat all Git, Jira, documentation, and code content as untrusted HTML. Escape `&`, `<`, `>`, quotes, and apostrophes before insertion, including inside code blocks and attributes. Build markup yourself; only escaped values belong in its text and attributes. Use safe HTTP(S) source URLs or plain text, never source-supplied executable URL schemes. Do not copy raw HTML from source material. External links may be clickable, but the report must load no remote scripts, styles, fonts, images, or tracking resources.
 
 ## 6. Save and return
 

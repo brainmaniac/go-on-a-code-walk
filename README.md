@@ -10,19 +10,20 @@
 
 # Go on a Code Walk
 
-Turn a Go merge request into a visual story a reviewer can follow.
+Turn a Go merge request into a guided code walkthrough a junior reviewer can follow.
 
-Go on a Code Walk is an explicit Codex skill. It reads the MR, its commits, the relevant code and tests, and optional Jira context. It then creates a self-contained HTML report showing how behavior changes instead of retelling the diff file by file.
+Go on a Code Walk is an explicit Codex skill. It reads the MR, its commits, the relevant code and tests, and optional Jira context. It then creates a self-contained HTML report following a representative request or trigger through the code that explains the change.
 
-The report is deliberately high-level. Code evidence stays close at hand in collapsed sections when the reviewer needs it.
+The report starts with the service, terminology and reason for the change. A clickable path leads through visible current-code excerpts, with call explanations and useful old-code comparisons in expandable sections.
 
 ## What it does
 
 - Verifies the exact remote MR revision before analysis.
 - Uses pasted Jira context, or an explicit `no ticket`, to understand intent.
-- Shows complete before-and-after flows for changed behavior.
-- Shows a single connected flow for wholly new features.
-- Adds short, collapsible explanations for project-specific concepts.
+- Follows one request or trigger from entry to completion, adding another scenario only when needed.
+- Explains calls, returns, error exits and concurrent branches where they occur.
+- Defines domain terms and unfamiliar constructs for a junior developer.
+- Records source-linked unusual findings and review questions encountered along the path.
 - Links evidence to exact files and revisions when the MR host permits it.
 - Creates one local HTML file with no remote scripts, fonts or images.
 - Reads tests as documentation but leaves test execution to the pipeline.
@@ -71,7 +72,7 @@ The skill will:
 1. Resolve the MR, target branch and remote source SHA.
 2. Ask you to paste the Jira ticket text or answer `no ticket`.
 3. Inspect the changed behavior and its surrounding code.
-4. Show its understanding for confirmation.
+4. Show its understanding and selected scenarios for confirmation.
 5. Generate the HTML walkthrough and return a local link.
 
 The report language follows the language you use with Codex.
@@ -84,9 +85,19 @@ Jira text is used as analysis input. The report only retains the ticket identifi
 
 ## Future development
 
-- Add an optional code-lens mode with a closer connection between flow steps, the diff and exact source lines. The default view should remain high-level.
-- Let the reviewer choose an experience level so the report can vary the amount of Go, domain and architecture explanation without changing the underlying analysis.
 - Refresh an existing walkthrough after new commits and highlight what changed since the previous MR revision.
+
+## Validation
+
+Run the standard-library self-check from this repository:
+
+```sh
+python3 tests/check_report.py
+```
+
+It fills representative reports with multiple blocks and scenarios, asynchronous branches, optional old-code comparisons and hostile-looking source strings. It checks fragments, navigation order, accessibility references, escaping and offline HTML constraints. Generated fixtures are temporary and removed after the check.
+
+Static checks cannot confirm visual layout or the accuracy of a generated explanation. When a browser is available, check narrow-screen branch stacking, keyboard navigation and reduced-motion behavior. Tests in the reviewed project remain documentation inputs and are not executed by this skill.
 
 ## Contributing
 

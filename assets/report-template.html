@@ -138,116 +138,22 @@
     .sticker { background: var(--yellow); box-shadow: 2px 3px 0 #d3a900; transform: rotate(-1.5deg); }
 
     .section { margin-top: 24px; padding: clamp(24px, 4vw, 42px); }
-    .minute { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; }
-    .minute-mark {
-      display: grid;
-      place-items: center;
-      width: 64px;
-      height: 64px;
-      border-radius: 20px;
-      color: #fff;
-      background: var(--rainbow);
-      box-shadow: 4px 5px 0 rgba(69, 49, 107, 0.24);
-      font-size: 1.6rem;
-      font-weight: 900;
-      transform: rotate(-4deg);
-    }
-
-    .story { margin-top: 24px; padding: clamp(24px, 4vw, 44px); }
-    .story-number {
-      display: inline-grid;
-      place-items: center;
-      width: 42px;
-      height: 42px;
-      margin-bottom: 14px;
-      border-radius: 50% 45% 52% 42%;
-      color: #fff;
-      background: #6d45db;
-      font-weight: 900;
-      transform: rotate(5deg);
-    }
-
-    .comparison {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 24px;
-      margin-top: 28px;
-    }
-
-    .comparison.single { grid-template-columns: minmax(0, 760px); justify-content: center; }
-    .flow {
-      min-width: 0;
-      padding: 20px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.7);
-    }
-
-    .flow.before { border-top: 7px solid #8c899c; }
-    .flow.after { border-top: 7px solid var(--green); }
-    .flow.new { border-top: 7px solid var(--blue); }
-    .flow > h3 { margin-bottom: 18px; font-size: 1.12rem; }
-
-    .flow-step {
-      position: relative;
-      padding: 17px 18px;
-      border: 2px solid #c8c5d5;
-      border-radius: 16px;
-      background: #fff;
-    }
-
-    .flow-step + .flow-step { margin-top: 38px; }
-    .flow-step + .flow-step::before {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: calc(100% + 2px);
-      width: 3px;
-      height: 34px;
-      border-radius: 3px;
-      background: #aaa5bd;
-    }
-
-    .flow-step + .flow-step::after {
-      content: "";
-      position: absolute;
-      left: calc(50% - 5px);
-      top: -9px;
-      width: 9px;
-      height: 9px;
-      border-right: 3px solid #aaa5bd;
-      border-bottom: 3px solid #aaa5bd;
-      transform: rotate(45deg);
-    }
-
-    .flow-step.changed { border-color: var(--orange); background: #fff7eb; }
-    .flow-step.added { border-color: var(--green); background: #effff7; }
-    .flow-step.removed { border-color: var(--pink); background: #fff2f7; }
-    .flow-step.unchanged { color: #676579; background: #f6f5f9; }
-
-    .step-label {
-      display: inline-block;
-      margin-bottom: 8px;
-      border-radius: 999px;
-      padding: 2px 8px;
-      color: #55506a;
-      background: #ece9f5;
-      font-size: 0.7rem;
-      font-weight: 850;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .changed .step-label { color: #7b4000; background: #ffe0ba; }
-    .added .step-label { color: #18583b; background: #c6f6df; }
-    .removed .step-label { color: #8c2851; background: #ffd1e1; }
-
-    .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 18px 0 0; color: var(--muted); font-size: 0.82rem; }
-    .legend span { display: inline-flex; align-items: center; gap: 6px; }
-    .legend i { width: 10px; height: 10px; border-radius: 50%; background: #c8c5d5; }
-    .legend .changed-dot { background: var(--orange); }
-    .legend .added-dot { background: var(--green); }
-    .legend .removed-dot { background: var(--pink); }
+    .walkthrough { margin-top: 24px; }
+    .story { margin-top: 20px; padding: clamp(24px, 4vw, 44px); }
+    .story.branch { border-left: 6px solid var(--blue); }
+    .path-lanes { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 24px; }
+    .path-lane { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 22px; background: #fff; }
+    .path-lane.branch { border-top: 7px solid var(--blue); }
+    .path-steps { margin: 0; padding-left: 1.5rem; }
+    .path-steps li + li { margin-top: 16px; }
+    .path-steps a { display: block; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #f5efff; }
+    .block-nav { display: flex; flex-wrap: wrap; gap: 12px 24px; margin-top: 20px; }
+    .terms { margin: 0; }
+    .terms dt { font-weight: 780; }
+    .terms dd { margin: 0 0 12px; }
+    :target { scroll-margin-top: 24px; }
+    :focus-visible { outline: 3px solid #5d3ed1; outline-offset: 4px; }
+    .meta { overflow-wrap: anywhere; }
 
     details {
       margin-top: 16px;
@@ -283,18 +189,11 @@
       50% { opacity: 1; transform: scale(1.08) rotate(8deg); }
     }
 
-    @media (hover: hover) {
-      .flow-step { transition: transform 160ms ease, box-shadow 160ms ease; }
-      .flow-step:hover { transform: translateY(-2px) rotate(-0.25deg); box-shadow: 0 10px 20px rgba(58, 45, 94, 0.1); }
-    }
-
     @media (max-width: 760px) {
       .page { width: min(100% - 20px, 620px); padding-top: 16px; }
       .hero, .section, .story { border-radius: 20px; }
       .rainbow-sticker { opacity: 0.56; }
-      .comparison { grid-template-columns: 1fr; }
-      .minute { grid-template-columns: 1fr; }
-      .minute-mark { width: 52px; height: 52px; }
+      .path-lanes { grid-template-columns: 1fr; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -321,100 +220,144 @@
       </div>
     </header>
 
-    <section class="section minute" aria-labelledby="minute-title">
-      <div class="minute-mark" aria-hidden="true">1'</div>
-      <div>
-        <h2 id="minute-title">{{MR_IN_ONE_MINUTE_HEADING}}</h2>
+    <main>
+      <section class="section" aria-labelledby="service-title">
+        <h2 id="service-title">{{SERVICE_HEADING}}</h2>
+        <p>{{SERVICE_INTRODUCTION}}</p>
+      </section>
+
+      <section class="section" aria-labelledby="terms-title">
+        <h2 id="terms-title">{{TERMINOLOGY_HEADING}}</h2>
+        <dl class="terms">
+          <!-- Repeat for domain terms, acronyms and unusual technical terms used in the walk. -->
+          <dt>{{TERM}}</dt>
+          <dd>{{TERM_DEFINITION}}</dd>
+        </dl>
+      </section>
+
+      <section class="section" aria-labelledby="change-title">
+        <h2 id="change-title">{{CHANGE_HEADING}}</h2>
         <p>{{MOTIVATION}}</p>
         <p>{{RESULTING_BEHAVIOR}}</p>
-      </div>
-    </section>
+      </section>
 
-    <!-- Duplicate this article for each coherent behavior story. -->
-    <article class="story" aria-labelledby="story-1-title">
-      <div class="story-number" aria-hidden="true">1</div>
-      <h2 id="story-1-title">{{STORY_TITLE}}</h2>
-      <p>{{STORY_INTRODUCTION}}</p>
-
-      <!-- Existing behavior: retain both flows. New feature: use one .flow.new inside .comparison.single. -->
-      <div class="comparison">
-        <section class="flow before" aria-labelledby="before-1-title">
-          <h3 id="before-1-title">{{BEFORE_HEADING}}</h3>
-          <div class="flow-step unchanged">
-            <span class="step-label">{{UNCHANGED_LABEL}}</span>
-            <h3>{{BEFORE_STEP_TITLE}}</h3>
-            <p>{{BEFORE_STEP_DESCRIPTION}}</p>
+      <!-- Repeat this scenario only when another path explains otherwise uncovered changed behavior.
+           Rename every ID and fragment reference when repeating scenarios or blocks. -->
+      <section class="walkthrough" aria-labelledby="scenario-1-title">
+        <nav class="section path" id="path-1" aria-labelledby="scenario-1-title">
+          <h2 id="scenario-1-title">{{SCENARIO_TITLE}}</h2>
+          <p>{{SCENARIO_INPUT_AND_OUTCOME}}</p>
+          <p>{{READING_ORDER_AND_CONCURRENCY}}</p>
+          <!-- Adapt these lanes and nodes to the actual code. Link every walkthrough block.
+               Branch labels must name the trigger, waits or absence of waits, and return/join. -->
+          <div class="path-lanes">
+            <section class="path-lane" aria-labelledby="main-1-title">
+              <h3 id="main-1-title">{{MAIN_PATH_HEADING}}</h3>
+              <ol class="path-steps">
+                <li><a href="#walk-1">1. {{BLOCK_1_TITLE}}</a><p>{{BRANCH_TRIGGER}}</p></li>
+                <li><a href="#walk-3">3. {{BLOCK_3_TITLE}}</a><p>{{MAIN_RESUME_AND_WAIT}}</p></li>
+              </ol>
+            </section>
+            <section class="path-lane branch" aria-labelledby="branch-1-title">
+              <h3 id="branch-1-title">{{ASYNC_PATH_HEADING}}</h3>
+              <p>{{BRANCH_CONCURRENCY_AND_JOIN}}</p>
+              <ol class="path-steps" start="2">
+                <li><a href="#walk-2">2. {{BLOCK_2_TITLE}}</a></li>
+              </ol>
+            </section>
           </div>
-          <div class="flow-step removed">
-            <span class="step-label">{{REMOVED_LABEL}}</span>
-            <h3>{{BEFORE_CHANGED_STEP_TITLE}}</h3>
-            <p>{{BEFORE_CHANGED_STEP_DESCRIPTION}}</p>
+        </nav>
+
+        <!-- Keep current code visible. Each block is a contiguous action in one function.
+             Add blocks for calls and returns; a typical excerpt is about 5–20 lines. -->
+        <article class="story" id="walk-1" aria-labelledby="walk-1-title">
+          <h2 id="walk-1-title">1. {{BLOCK_1_TITLE}}</h2>
+          <pre><code>{{ESCAPED_CODE_1}}</code></pre>
+          <p class="source-ref"><a href="{{SOURCE_1_URL}}" rel="noreferrer noopener">{{SOURCE_1_LOCATION}}</a></p>
+          <p>{{BLOCK_1_EXPLANATION}}</p>
+          <p>{{BLOCK_1_ERRORS_AND_EXITS}}</p>
+          <p>{{BRANCH_TRIGGER_AND_DATA}}</p>
+          <details>
+            <summary>{{CALLS_HEADING}}</summary>
+            <div class="details-body"><p>{{BLOCK_1_CALLS_INPUTS_RESULTS_AND_CONSTRUCTS}}</p></div>
+          </details>
+          <!-- Remove this comparison when old code does not help. Its source is the merge base. -->
+          <details class="old-code">
+            <summary>{{OLD_CODE_HEADING}}</summary>
+            <div class="details-body">
+              <pre><code>{{ESCAPED_OLD_CODE}}</code></pre>
+              <p class="source-ref"><a href="{{MERGE_BASE_SOURCE_URL}}" rel="noreferrer noopener">{{MERGE_BASE_SOURCE_LOCATION}}</a></p>
+              <p>{{OLD_CODE_EXPLANATION}}</p>
+            </div>
+          </details>
+          <nav class="block-nav" aria-label="{{BLOCK_1_NAV_LABEL}}">
+            <a class="next" href="#walk-2">{{NEXT_LABEL}}</a>
+            <a class="back-to-path" href="#path-1">{{BACK_TO_PATH_LABEL}}</a>
+          </nav>
+        </article>
+
+        <!-- Place the branch at its trigger in reading order, regardless of execution order. -->
+        <article class="story branch" id="walk-2" aria-labelledby="walk-2-title">
+          <h2 id="walk-2-title">2. {{BLOCK_2_TITLE}}</h2>
+          <pre><code>{{ESCAPED_CODE_2}}</code></pre>
+          <p class="source-ref"><a href="{{SOURCE_2_URL}}" rel="noreferrer noopener">{{SOURCE_2_LOCATION}}</a></p>
+          <p>{{BLOCK_2_EXPLANATION}}</p>
+          <p>{{BLOCK_2_ERRORS_AND_EXITS}}</p>
+          <p>{{BRANCH_COMPLETION_AND_MAIN_RETURN}}</p>
+          <details>
+            <summary>{{CALLS_HEADING}}</summary>
+            <div class="details-body"><p>{{BLOCK_2_CALLS_INPUTS_RESULTS_AND_CONSTRUCTS}}</p></div>
+          </details>
+          <nav class="block-nav" aria-label="{{BLOCK_2_NAV_LABEL}}">
+            <a class="next" href="#walk-3">{{NEXT_LABEL}}</a>
+            <a class="back-to-path" href="#path-1">{{BACK_TO_PATH_LABEL}}</a>
+          </nav>
+        </article>
+
+        <article class="story" id="walk-3" aria-labelledby="walk-3-title">
+          <h2 id="walk-3-title">3. {{BLOCK_3_TITLE}}</h2>
+          <pre><code>{{ESCAPED_CODE_3}}</code></pre>
+          <p class="source-ref"><a href="{{SOURCE_3_URL}}" rel="noreferrer noopener">{{SOURCE_3_LOCATION}}</a></p>
+          <p>{{RETURN_TO_CALLER_AND_RESPONSE}}</p>
+          <p>{{BLOCK_3_ERRORS_AND_EXITS}}</p>
+          <details>
+            <summary>{{CALLS_HEADING}}</summary>
+            <div class="details-body"><p>{{BLOCK_3_CALLS_INPUTS_RESULTS_AND_CONSTRUCTS}}</p></div>
+          </details>
+          <p>{{END_OF_WALK}}</p>
+          <!-- Final block has no Next link. Additional scenarios need a visible entry link. -->
+          <nav class="block-nav" aria-label="{{BLOCK_3_NAV_LABEL}}">
+            <a class="back-to-path" href="#path-1">{{BACK_TO_PATH_LABEL}}</a>
+          </nav>
+        </article>
+      </section>
+
+      <section class="section" aria-labelledby="findings-title">
+        <h2 id="findings-title">{{FINDINGS_HEADING}}</h2>
+        <ul class="checklist">
+          <li>{{OBSERVED_ODDITY_AND_POSSIBLE_IMPACT}} {{UNCERTAINTY_AND_REVIEW_QUESTION}}
+            <a href="{{FINDING_SOURCE_URL}}" rel="noreferrer noopener">{{FINDING_SOURCE_LOCATION}}</a>
+          </li>
+        </ul>
+        <!-- If no findings were encountered, replace the list with this visible note. -->
+        <p class="empty-note">{{NO_FINDINGS_DISCLAIMER}}</p>
+      </section>
+
+      <section class="section" aria-labelledby="sources-title">
+        <h2 id="sources-title">{{SOURCES_HEADING}}</h2>
+        <details>
+          <summary>{{SOURCES_SUMMARY}}</summary>
+          <div class="details-body">
+            <p>{{SOURCE_REVISION}}</p>
+            <p>{{MERGE_BASE_REVISION}}</p>
+            <p>{{LOCAL_REMOTE_STATUS}}</p>
+            <p>{{FILES_AND_COMMITS}}</p>
+            <p>{{PIPELINE_STATUS}}</p>
+            <p>{{ASSUMPTIONS}}</p>
           </div>
-        </section>
-
-        <section class="flow after" aria-labelledby="after-1-title">
-          <h3 id="after-1-title">{{AFTER_HEADING}}</h3>
-          <div class="flow-step unchanged">
-            <span class="step-label">{{UNCHANGED_LABEL}}</span>
-            <h3>{{AFTER_STEP_TITLE}}</h3>
-            <p>{{AFTER_STEP_DESCRIPTION}}</p>
-          </div>
-          <div class="flow-step added">
-            <span class="step-label">{{ADDED_LABEL}}</span>
-            <h3>{{AFTER_CHANGED_STEP_TITLE}}</h3>
-            <p>{{AFTER_CHANGED_STEP_DESCRIPTION}}</p>
-          </div>
-        </section>
-      </div>
-
-      <div class="legend" aria-label="Flow legend">
-        <span><i></i>{{UNCHANGED_LABEL}}</span>
-        <span><i class="changed-dot"></i>{{CHANGED_LABEL}}</span>
-        <span><i class="added-dot"></i>{{ADDED_LABEL}}</span>
-        <span><i class="removed-dot"></i>{{REMOVED_LABEL}}</span>
-      </div>
-
-      <details>
-        <summary>{{WHAT_IS_THIS_HEADING}}</summary>
-        <div class="details-body"><p>{{CONTEXT_EXPLANATION}}</p></div>
-      </details>
-
-      <details>
-        <summary>{{CODE_EVIDENCE_HEADING}}</summary>
-        <div class="details-body">
-          <pre><code>{{ESCAPED_CODE_EXCERPT}}</code></pre>
-          <p class="source-ref"><a href="{{SOURCE_URL}}" rel="noreferrer noopener">{{SOURCE_PATH_AND_LINE}}</a></p>
-        </div>
-      </details>
-    </article>
-
-    <section class="section" aria-labelledby="verify-title">
-      <h2 id="verify-title">{{THINGS_TO_VERIFY_HEADING}}</h2>
-      <details>
-        <summary>{{CHECKLIST_SUMMARY}}</summary>
-        <div class="details-body">
-          <ul class="checklist">
-            <li>{{VERIFICATION_QUESTION}} <a href="{{VERIFICATION_SOURCE_URL}}" rel="noreferrer noopener">{{VERIFICATION_SOURCE}}</a></li>
-          </ul>
-        </div>
-      </details>
-      <!-- If there are no checklist items, remove the details block and retain this note. -->
-      <p class="empty-note">{{NO_SPECIAL_CHECKS_DISCLAIMER}}</p>
-    </section>
-
-    <section class="section" aria-labelledby="sources-title">
-      <h2 id="sources-title">{{SOURCES_HEADING}}</h2>
-      <details>
-        <summary>{{SOURCES_SUMMARY}}</summary>
-        <div class="details-body">
-          <p>{{SOURCE_REVISION}}</p>
-          <p>{{LOCAL_REMOTE_STATUS}}</p>
-          <p>{{FILES_AND_COMMITS}}</p>
-          <p>{{ASSUMPTIONS}}</p>
-        </div>
-      </details>
-    </section>
-
+        </details>
+      </section>
+    </main>
     <footer class="footer">{{GENERATED_NOTE}}</footer>
   </div>
 </body>
