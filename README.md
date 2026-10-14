@@ -14,7 +14,7 @@ Turn a Go merge request into a guided code walkthrough a junior reviewer can fol
 
 Go on a Code Walk is an explicit Codex skill. It reads the MR, its commits, the relevant code and tests, and optional Jira context. It then creates a self-contained HTML report following a representative request or trigger through the code that explains the change.
 
-The report starts with the service, terminology and reason for the change. A clickable path leads through visible current-code excerpts, with call explanations and useful old-code comparisons in expandable sections.
+The report starts with the service, terminology and reason for the change. A clickable path leads through visible current-code excerpts, with call explanations and useful old-code comparisons in expandable sections. With call details open, hovering or keyboard-focusing a call or its explanation highlights both.
 
 ## What it does
 

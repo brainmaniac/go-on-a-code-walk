@@ -166,6 +166,46 @@
     summary:hover { color: #6d45db; }
     details[open] summary { border-bottom: 1px solid var(--line); }
     .details-body { padding: 16px; }
+    .call-details[open] { border-color: #c8b8ed; background: #faf7ff; }
+    .call-details[open] > summary { color: #603ab2; }
+    .call-list { margin: 0; }
+    .call-detail {
+      display: grid;
+      grid-template-columns: minmax(140px, 1fr) minmax(0, 3fr);
+      gap: 12px 24px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--call-highlight, #fff);
+      border-color: var(--call-border, var(--line));
+    }
+    .call-detail + .call-detail { margin-top: 10px; }
+    .call-detail dt { font-weight: 780; }
+    .call-detail dd { margin: 0; color: #45445b; }
+    .call-detail code {
+      padding: 3px 7px;
+      border-radius: 6px;
+      color: #603ab2;
+      background: #f1eaff;
+      font: 0.86rem/1.55 ui-monospace, "SFMono-Regular", Consolas, monospace;
+      overflow-wrap: anywhere;
+    }
+
+    .call-ref {
+      color: var(--call-ink, inherit);
+      background: var(--call-highlight, transparent);
+      border-radius: 4px;
+      text-decoration: underline dotted;
+      text-underline-offset: 0.2em;
+    }
+
+    /* Repeat this rule for each call key used in the report (call-2, call-3, ...).
+       The containing story keeps matches local, even when other blocks reuse a key. */
+    .story:has(> .call-details[open]):has(.call-1:is(:hover, :focus-visible)) :is(.call-ref, .call-detail).call-1 {
+      --call-highlight: #ffe8b0;
+      --call-ink: #493000;
+      --call-border: #b98016;
+    }
 
     pre {
       max-width: 100%;
@@ -194,6 +234,7 @@
       .hero, .section, .story { border-radius: 20px; }
       .rainbow-sticker { opacity: 0.56; }
       .path-lanes { grid-template-columns: 1fr; }
+      .call-detail { grid-template-columns: 1fr; gap: 8px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -269,17 +310,28 @@
         </nav>
 
         <!-- Keep current code visible. Each block is a contiguous action in one function.
-             Add blocks for calls and returns; a typical excerpt is about 5–20 lines. -->
+             Add blocks for calls and returns; a typical excerpt is about 5–20 lines.
+             Escape source fragments separately, then wrap only actual call names in .call-ref spans.
+             Match each span's call-N class to its row; repeat spans for repeated calls.
+             Add the matching CSS rule for each call key. Keep description IDs unique. -->
         <article class="story" id="walk-1" aria-labelledby="walk-1-title">
           <h2 id="walk-1-title">1. {{BLOCK_1_TITLE}}</h2>
-          <pre><code>{{ESCAPED_CODE_1}}</code></pre>
+          <pre><code>{{ESCAPED_CODE_1_BEFORE_CALL}}<span class="call-ref call-1" tabindex="0" aria-describedby="walk-1-call-1-description">{{BLOCK_1_CALL_NAME}}</span>{{ESCAPED_CODE_1_AFTER_CALL}}</code></pre>
           <p class="source-ref"><a href="{{SOURCE_1_URL}}" rel="noreferrer noopener">{{SOURCE_1_LOCATION}}</a></p>
           <p>{{BLOCK_1_EXPLANATION}}</p>
           <p>{{BLOCK_1_ERRORS_AND_EXITS}}</p>
           <p>{{BRANCH_TRIGGER_AND_DATA}}</p>
-          <details>
+          <details class="call-details">
             <summary>{{CALLS_HEADING}}</summary>
-            <div class="details-body"><p>{{BLOCK_1_CALLS_INPUTS_RESULTS_AND_CONSTRUCTS}}</p></div>
+            <div class="details-body">
+              <dl class="call-list">
+                <!-- Repeat this pair for each call or unfamiliar construct; group repeated operations. -->
+                <div class="call-detail call-1" tabindex="0">
+                  <dt><code>{{BLOCK_1_CALL_NAME}}</code></dt>
+                  <dd id="walk-1-call-1-description">{{BLOCK_1_CALL_PURPOSE_INPUTS_AND_RESULT}}</dd>
+                </div>
+              </dl>
+            </div>
           </details>
           <!-- Remove this comparison when old code does not help. Its source is the merge base. -->
           <details class="old-code">
@@ -299,14 +351,22 @@
         <!-- Place the branch at its trigger in reading order, regardless of execution order. -->
         <article class="story branch" id="walk-2" aria-labelledby="walk-2-title">
           <h2 id="walk-2-title">2. {{BLOCK_2_TITLE}}</h2>
-          <pre><code>{{ESCAPED_CODE_2}}</code></pre>
+          <pre><code>{{ESCAPED_CODE_2_BEFORE_CALL}}<span class="call-ref call-1" tabindex="0" aria-describedby="walk-2-call-1-description">{{BLOCK_2_CALL_NAME}}</span>{{ESCAPED_CODE_2_AFTER_CALL}}</code></pre>
           <p class="source-ref"><a href="{{SOURCE_2_URL}}" rel="noreferrer noopener">{{SOURCE_2_LOCATION}}</a></p>
           <p>{{BLOCK_2_EXPLANATION}}</p>
           <p>{{BLOCK_2_ERRORS_AND_EXITS}}</p>
           <p>{{BRANCH_COMPLETION_AND_MAIN_RETURN}}</p>
-          <details>
+          <details class="call-details">
             <summary>{{CALLS_HEADING}}</summary>
-            <div class="details-body"><p>{{BLOCK_2_CALLS_INPUTS_RESULTS_AND_CONSTRUCTS}}</p></div>
+            <div class="details-body">
+              <dl class="call-list">
+                <!-- Repeat this pair for each call or unfamiliar construct; group repeated operations. -->
+                <div class="call-detail call-1" tabindex="0">
+                  <dt><code>{{BLOCK_2_CALL_NAME}}</code></dt>
+                  <dd id="walk-2-call-1-description">{{BLOCK_2_CALL_PURPOSE_INPUTS_AND_RESULT}}</dd>
+                </div>
+              </dl>
+            </div>
           </details>
           <nav class="block-nav" aria-label="{{BLOCK_2_NAV_LABEL}}">
             <a class="next" href="#walk-3">{{NEXT_LABEL}}</a>
@@ -316,13 +376,21 @@
 
         <article class="story" id="walk-3" aria-labelledby="walk-3-title">
           <h2 id="walk-3-title">3. {{BLOCK_3_TITLE}}</h2>
-          <pre><code>{{ESCAPED_CODE_3}}</code></pre>
+          <pre><code>{{ESCAPED_CODE_3_BEFORE_CALL}}<span class="call-ref call-1" tabindex="0" aria-describedby="walk-3-call-1-description">{{BLOCK_3_CALL_NAME}}</span>{{ESCAPED_CODE_3_AFTER_CALL}}</code></pre>
           <p class="source-ref"><a href="{{SOURCE_3_URL}}" rel="noreferrer noopener">{{SOURCE_3_LOCATION}}</a></p>
           <p>{{RETURN_TO_CALLER_AND_RESPONSE}}</p>
           <p>{{BLOCK_3_ERRORS_AND_EXITS}}</p>
-          <details>
+          <details class="call-details">
             <summary>{{CALLS_HEADING}}</summary>
-            <div class="details-body"><p>{{BLOCK_3_CALLS_INPUTS_RESULTS_AND_CONSTRUCTS}}</p></div>
+            <div class="details-body">
+              <dl class="call-list">
+                <!-- Repeat this pair for each call or unfamiliar construct; group repeated operations. -->
+                <div class="call-detail call-1" tabindex="0">
+                  <dt><code>{{BLOCK_3_CALL_NAME}}</code></dt>
+                  <dd id="walk-3-call-1-description">{{BLOCK_3_CALL_PURPOSE_INPUTS_AND_RESULT}}</dd>
+                </div>
+              </dl>
+            </div>
           </details>
           <p>{{END_OF_WALK}}</p>
           <!-- Final block has no Next link. Additional scenarios need a visible entry link. -->

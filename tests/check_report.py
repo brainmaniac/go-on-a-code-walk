@@ -14,16 +14,20 @@ CODE = {
     'ESCAPED_CODE_3': 'w.Header().Set("Content-Type", "application/json")\nif err := json.NewEncoder(w).Encode(order.ID); err != nil {\n    log.Print(err)\n}\nreturn',
     'ESCAPED_OLD_CODE': 'if err := deliver(order); err != nil {\n    http.Error(w, "delivery failed", 502)\n    return\n}\njson.NewEncoder(w).Encode(order.ID)',
 }
+CALLS = {1: ('accept', 'deliver'), 2: ('sendReceipt', 'log.Print'), 3: ('json.NewEncoder', 'log.Print')}
 
 
 class Element:
     def __init__(self, tag, attrs=(), parent=None):
         self.tag, self.attrs, self.parent = tag, dict(attrs), parent
-        self.children, self.text = [], ''
+        self.children, self.text, self.content = [], '', []
 
     def all(self, tag=None):
         return [node for child in self.children
                 for node in [child, *child.all()] if tag is None or node.tag == tag]
+
+    def text_content(self):
+        return ''.join(part.text_content() if isinstance(part, Element) else part for part in self.content)
 
     def has_class(self, name):
         return name in self.attrs.get('class', '').split()
@@ -48,6 +52,7 @@ class ReportParser(HTMLParser):
     def handle_starttag(self, tag, attrs):
         node = Element(tag, attrs, self.current)
         self.current.children.append(node)
+        self.current.content.append(node)
         if tag not in {'meta', 'link', 'img', 'br', 'hr', 'input', 'source', 'wbr'}:
             self.current = node
 
@@ -57,10 +62,19 @@ class ReportParser(HTMLParser):
 
     def handle_data(self, data):
         self.current.text += data
+        self.current.content.append(data)
 
 
 def filled_report(comparison=True, scenarios=1):
     html = TEMPLATE.read_text()
+    # Exercise two independent call connections in every block.
+    rule = re.search(r'    \.story:has.*?\n    }', html, re.S)[0]
+    html = html.replace(rule, rule + '\n' + rule.replace('call-1', 'call-2'))
+    for number in CALLS:
+        row = re.search(r'                <div class="call-detail call-1".*?</div>',
+                        html[html.index(f'id="walk-{number}"'):], re.S)[0]
+        second = row.replace('call-1', 'call-2').replace('_CALL_NAME', '_SECOND_CALL_NAME').replace('_CALL_PURPOSE', '_SECOND_CALL_PURPOSE')
+        html = html.replace(row, row + '\n' + second)
     if not comparison:
         html = re.sub(r'          <details class="old-code">.*?</details>\n', '', html, flags=re.S)
     # Both the ticket-link and no-ticket forms are supported by the skill.
@@ -75,17 +89,18 @@ def filled_report(comparison=True, scenarios=1):
         scenario = html[start:end]
         copies = [scenario]
         for number in range(2, scenarios + 1):
-            copy = re.sub(r'(id="|href="#|aria-labelledby=")([^"]+)"',
+            copy = re.sub(r'(id="|href="#|aria-labelledby="|aria-describedby=")([^"]+)"',
                           lambda m: f'{m[1]}{m[2]}-s{number}"', scenario)
             copy = copy.replace('{{SCENARIO_TITLE}}', 'Accept an order when receipt delivery fails')
             copy = copy.replace('{{SCENARIO_INPUT_AND_OUTCOME}}', 'The sender fails. The handler still acknowledges the accepted order, while the worker logs the delivery error.')
+            copy = re.sub(r'{{(ESCAPED_CODE_\d_AFTER_CALL)}}', rf'{{{{\1_S{number}}}}}', copy)
             copies.append(copy)
         entries = '<nav aria-label="Scenarios">' + ''.join(
             f'<a href="#path-1{suffix}">Scenario {i}</a> '
             for i, suffix in [(1, ''), *[(n, f'-s{n}') for n in range(2, scenarios + 1)]]) + '</nav>'
         html = html[:start] + entries + '\n'.join(copies) + html[end:]
     values = {
-        'REPORT_LANG': 'en', 'PIPELINE_CLASS': 'unknown',
+        'REPORT_LANG': 'en', 'PIPELINE_CLASS': 'unknown', 'CALLS_HEADING': 'Call details',
         'MR_TITLE': 'Queue a receipt after accepting a request',
         'SERVICE_INTRODUCTION': 'The receipt service accepts customer orders from the checkout API and returns an acknowledgement. It sends receipts in a background worker.',
         'TERM': 'Acknowledgement', 'TERM_DEFINITION': 'A response confirming that the order was accepted, before receipt delivery finishes.',
@@ -108,7 +123,22 @@ def filled_report(comparison=True, scenarios=1):
     }
     def fill(match):
         key = match[1]
-        if key.startswith('ESCAPED_'):
+        fragment = re.fullmatch(r'ESCAPED_CODE_(\d)_(BEFORE|AFTER)_CALL(?:_S(\d+))?', key)
+        call_name = re.fullmatch(r'BLOCK_(\d)_(SECOND_)?CALL_NAME', key)
+        if fragment:
+            number, side = int(fragment[1]), fragment[2]
+            suffix = f'-s{fragment[3]}' if fragment[3] else ''
+            before, _, after = CODE[f'ESCAPED_CODE_{number}'].partition(CALLS[number][0])
+            if side == 'BEFORE':
+                value = before
+            else:
+                before_second, name, after_second = after.partition(CALLS[number][1])
+                return (escape(before_second, quote=True)
+                        + f'<span class="call-ref call-2" tabindex="0" aria-describedby="walk-{number}-call-2-description{suffix}">'
+                        + escape(name, quote=True) + '</span>' + escape(after_second, quote=True))
+        elif call_name:
+            value = CALLS[int(call_name[1])][bool(call_name[2])]
+        elif key.startswith('ESCAPED_'):
             value = CODE[key]
         elif key.endswith('_URL'):
             revision = 'base-sha' if key == 'MERGE_BASE_SOURCE_URL' else 'source-sha'
@@ -154,8 +184,19 @@ def check(html, scenarios, comparison):
             assert not block.inside('details')
             current = next(n for n in block.all('pre') if not n.inside('details'))
             assert current.children[0].tag == 'code'
-            assert current.children[0].text == CODE[f'ESCAPED_CODE_{index + 1}'], 'Code not escaped faithfully'
-            assert not current.children[0].children, 'Injected code markup'
+            assert current.children[0].text_content() == CODE[f'ESCAPED_CODE_{index + 1}'], 'Code not escaped faithfully'
+            refs = current.children[0].children
+            assert refs and all(n.tag == 'span' and n.has_class('call-ref') and not n.children for n in refs), 'Injected code markup'
+            rows = [n for n in block.all() if n.has_class('call-detail')]
+            keys = lambda n: {key for key in n.attrs.get('class', '').split() if re.fullmatch(r'call-\d+', key)}
+            assert len(rows) == 2 and {tuple(keys(n)) for n in refs} == {tuple(keys(n)) for n in rows}, 'Unmatched call connection'
+            for ref in refs:
+                assert ref.attrs.get('tabindex') == '0', 'Call cannot receive keyboard focus'
+                row = next(n for n in rows if keys(n) == keys(ref))
+                assert row.attrs.get('tabindex') == '0', 'Call detail cannot receive keyboard focus'
+                description = targets[ref.attrs['aria-describedby']]
+                assert description.parent is row, 'Call description belongs to another row'
+                assert ref.text == row.all('code')[0].text, 'Call name does not match its detail'
             source = next(n for n in block.all() if n.has_class('source-ref') and not n.inside('details'))
             assert 'source-sha' in source.all('a')[0].attrs['href'], 'Current code uses wrong revision'
             assert block.all('details'), 'Missing call explanation'
@@ -192,11 +233,14 @@ if __name__ == '__main__':
                        report.replace('href="#walk-2"', 'href="#missing"'),
                        report.replace('class="next" href="#walk-2"', 'class="next" href="#walk-3"'),
                        report.replace('&lt;script&gt;', '<script>'),
-                       report.replace('</body>', '<script></script></body>')):
+                       report.replace('</body>', '<script></script></body>'),
+                       report.replace('call-detail call-2', 'call-detail call-9'),
+                       report.replace('aria-describedby="walk-1-call-1-description"',
+                                      'aria-describedby="walk-2-call-1-description"')):
             try:
                 check(broken, 1, True)
             except AssertionError:
                 pass
             else:
                 raise AssertionError('Invalid report passed')
-    print('Passed: 4 filled reports and 5 invalid-report checks.')
+    print('Passed: 4 filled reports and 7 invalid-report checks.')
